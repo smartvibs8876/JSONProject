@@ -1,28 +1,39 @@
-package controllers
+package jsonhandler
 
 import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 
-	"JSONProject.com/fileopener"
+	"JSONProject.com/filehandler"
 )
 
-func GetNewJSON() {
-	oldJSONFile := fileopener.OpenJSON("oldJSON.json")
-	newJSONFile := fileopener.OpenJSON("newJSON.json")
+func ReadJSONFromFiles() map[string]string {
+	oldJSONFile := filehandler.OpenJSON("oldJSON.json")
+	newJSONFile := filehandler.OpenJSON("newJSON.json")
 	oldByteValue, _ := ioutil.ReadAll(oldJSONFile)
 	newByteValue, _ := ioutil.ReadAll(newJSONFile)
+	mapStr := make(map[string]string)
+	mapStr["oldJSON"] = string(oldByteValue)
+	mapStr["newJSON"] = string(newByteValue)
+	return mapStr
+
+}
+
+func GenerateJSON(JSONFromCM map[string]string) map[string]string {
+	oldByteValue := []byte(JSONFromCM["oldJSON"])
+	newByteValue := []byte(JSONFromCM["newJSON"])
 	var oldJSON map[string]interface{}
 	var newJSON map[string]interface{}
 	json.Unmarshal([]byte(oldByteValue), &oldJSON)
 	json.Unmarshal([]byte(newByteValue), &newJSON)
 	checkFieldValues(oldJSON, newJSON)
-	//fmt.Println(oldJSON)
-	jsonStr, _ := json.Marshal(oldJSON)
-	ioutil.WriteFile("oldJSON.json", jsonStr, 0644)
-	oldJSONFile.Close()
-	newJSONFile.Close()
+	oldJSONStr, _ := json.Marshal(oldJSON)
+	newJSONStr, _ := json.Marshal(newJSON)
+	mapStr := make(map[string]string)
+	mapStr["oldJSON"] = string(oldJSONStr)
+	mapStr["newJSON"] = string(newJSONStr)
+	return mapStr
 }
 
 func checkFieldValues(oldJSON map[string]interface{}, newJSON map[string]interface{}) {
