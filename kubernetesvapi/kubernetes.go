@@ -38,7 +38,7 @@ func CreateConfigMap(clientSet *kubernetes.Clientset, data map[string]string, na
 		},
 		Data: data,
 	}
-	err := clientSet.CoreV1().ConfigMaps("default").Delete(context.Background(), "json-map", metav1.DeleteOptions{})
+	err := clientSet.CoreV1().ConfigMaps("default").Delete(context.Background(), name, metav1.DeleteOptions{})
 	if err != nil {
 		fmt.Println(err.Error())
 	}
@@ -48,8 +48,8 @@ func CreateConfigMap(clientSet *kubernetes.Clientset, data map[string]string, na
 	}
 }
 
-func ReadConfigMap(clientSet *kubernetes.Clientset) map[string]string {
-	cm, err := clientSet.CoreV1().ConfigMaps("default").Get(context.Background(), "json-map", metav1.GetOptions{})
+func ReadConfigMap(clientSet *kubernetes.Clientset, name string) map[string]string {
+	cm, err := clientSet.CoreV1().ConfigMaps("default").Get(context.Background(), name, metav1.GetOptions{})
 	if err != nil {
 		fmt.Println(err.Error())
 	}

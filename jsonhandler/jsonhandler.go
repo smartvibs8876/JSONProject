@@ -8,9 +8,9 @@ import (
 	"JSONProject.com/filehandler"
 )
 
-func ReadJSONFromFiles() map[string]string {
-	oldJSONFile := filehandler.OpenJSON("oldJSON.json")
-	newJSONFile := filehandler.OpenJSON("newJSON.json")
+func ReadJSONFromFiles(oldFile string, newFile string) map[string]string {
+	oldJSONFile := filehandler.ReadJSON(oldFile)
+	newJSONFile := filehandler.ReadJSON(newFile)
 	oldByteValue, _ := ioutil.ReadAll(oldJSONFile)
 	newByteValue, _ := ioutil.ReadAll(newJSONFile)
 	mapStr := make(map[string]string)
@@ -34,6 +34,10 @@ func GenerateJSON(JSONFromCM map[string]string) map[string]string {
 	mapStr["oldJSON"] = string(oldJSONStr)
 	mapStr["newJSON"] = string(newJSONStr)
 	return mapStr
+}
+
+func WriteJSONToFile(fileName string, data map[string]string) {
+	filehandler.WriteJSON(fileName, data["oldJSON"])
 }
 
 func checkFieldValues(oldJSON map[string]interface{}, newJSON map[string]interface{}) {
