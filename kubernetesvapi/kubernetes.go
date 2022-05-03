@@ -26,7 +26,7 @@ func InitConnection() *kubernetes.Clientset {
 	return clientSet
 }
 
-func CreateConfigMap(clientSet *kubernetes.Clientset, data map[string]string, name string) {
+func CreateConfigMap(clientSet *kubernetes.Clientset, data map[string]string, name string, namespace string) {
 	cm := &corev1.ConfigMap{
 		TypeMeta: metav1.TypeMeta{
 			Kind:       "ConfigMap",
@@ -34,25 +34,30 @@ func CreateConfigMap(clientSet *kubernetes.Clientset, data map[string]string, na
 		},
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      name,
-			Namespace: "default",
+			Namespace: namespace,
 		},
 		Data: data,
 	}
-	err := clientSet.CoreV1().ConfigMaps("default").Delete(context.Background(), name, metav1.DeleteOptions{})
+	_, err := clientSet.CoreV1().ConfigMaps(namespace).Get(context.Background(), name, metav1.GetOptions{})
 	if err != nil {
-		fmt.Println(err.Error())
-	}
-	_, err = clientSet.CoreV1().ConfigMaps("default").Create(context.Background(), cm, metav1.CreateOptions{})
-	if err != nil {
-		panic(err)
+		fmt.Println(cm.Data)
+		_, err = clientSet.CoreV1().ConfigMaps(namespace).Create(context.Background(), cm, metav1.CreateOptions{})
+		if err != nil {
+			fmt.Println(err.Error())
+		}
+	} else {
+		_, err = clientSet.CoreV1().ConfigMaps(namespace).Update(context.Background(), cm, metav1.UpdateOptions{})
+		if err != nil {
+			fmt.Println(err.Error())
+		}
 	}
 }
-
-func ReadConfigMap(clientSet *kubernetes.Clientset, name string) map[string]string {
-	cm, err := clientSet.CoreV1().ConfigMaps("default").Get(context.Background(), name, metav1.GetOptions{})
+func ReadConfigMap(clientSet *kubernetes.Clientset, name string, namespace string) (string, error) {
+	cm, err := clientSet.CoreV1().ConfigMaps(namespace).Get(context.Background(), name, metav1.GetOptions{})
 	if err != nil {
 		fmt.Println(err.Error())
+		return "", err
 	}
-	JSONFromCM := cm.Data
-	return JSONFromCM
+	JSONFromCM := cm.Data["configuration"]
+	return JSONFromCM, nil
 }
