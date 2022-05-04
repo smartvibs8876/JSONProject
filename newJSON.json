@@ -18,7 +18,7 @@
     ],
     "sppCompatibilityWithOcp": [
         {
-            "componentVersion": "10.1.9",
+            "componentVersion": "10.1.8",
             "ocpVersions": [
                 "4.8",
                 "4.9"
@@ -27,9 +27,14 @@
         {
             "componentVersion": "10.1.10",
             "ocpVersions": [
+                "4.9"
             ]
         }
     ],
+    "Formula 1":{
+        "race1":"Australia",
+        "race2":"Bahrain"
+    },
     "supportedUpgradeableVersionsOcp": [
         "4.9.24",
         "5.0.4"

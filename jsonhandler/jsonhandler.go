@@ -60,12 +60,12 @@ func checkFieldValues(oldJSON map[string]interface{}, newJSON map[string]interfa
 		}
 	}
 	oldJSON = sortByJSONKeys(oldJSON, newJSON)
+	fmt.Println(oldJSON)
 }
 
 func sortByJSONKeys(oldJSON map[string]interface{}, newJSON map[string]interface{}) map[string]interface{} {
 	sortedOldJSON := make(map[string]interface{})
 	for key, _ := range newJSON {
-		fmt.Println(key)
 		if oldJSON[key] != nil {
 			sortedOldJSON[key] = oldJSON[key]
 		}

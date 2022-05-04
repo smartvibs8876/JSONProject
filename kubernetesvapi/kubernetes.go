@@ -26,6 +26,24 @@ func InitConnection() *kubernetes.Clientset {
 	return clientSet
 }
 
+func UpdateConfigMap(clientSet *kubernetes.Clientset, data map[string]string, name string, namespace string) {
+	cm := &corev1.ConfigMap{
+		TypeMeta: metav1.TypeMeta{
+			Kind:       "ConfigMap",
+			APIVersion: "v1",
+		},
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      name,
+			Namespace: namespace,
+		},
+		Data: data,
+	}
+	_, err := clientSet.CoreV1().ConfigMaps(namespace).Update(context.Background(), cm, metav1.UpdateOptions{})
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+
+}
 func CreateConfigMap(clientSet *kubernetes.Clientset, data map[string]string, name string, namespace string) {
 	cm := &corev1.ConfigMap{
 		TypeMeta: metav1.TypeMeta{
@@ -38,18 +56,11 @@ func CreateConfigMap(clientSet *kubernetes.Clientset, data map[string]string, na
 		},
 		Data: data,
 	}
-	_, err := clientSet.CoreV1().ConfigMaps(namespace).Get(context.Background(), name, metav1.GetOptions{})
+	_, err := clientSet.CoreV1().ConfigMaps(namespace).Create(context.Background(), cm, metav1.CreateOptions{})
 	if err != nil {
-		_, err = clientSet.CoreV1().ConfigMaps(namespace).Create(context.Background(), cm, metav1.CreateOptions{})
-		if err != nil {
-			fmt.Println(err.Error())
-		}
-	} else {
-		_, err = clientSet.CoreV1().ConfigMaps(namespace).Update(context.Background(), cm, metav1.UpdateOptions{})
-		if err != nil {
-			fmt.Println(err.Error())
-		}
+		fmt.Println(err.Error())
 	}
+
 }
 func ReadConfigMap(clientSet *kubernetes.Clientset, name string, namespace string) (string, error) {
 	cm, err := clientSet.CoreV1().ConfigMaps(namespace).Get(context.Background(), name, metav1.GetOptions{})

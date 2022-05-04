@@ -18,5 +18,5 @@ func main() {
 		return
 	}
 	dataMap := jsonhandler.GenerateJSONForConfigMap(newData, oldData)
-	kubernetesvapi.CreateConfigMap(clientSet, dataMap, configMapName, namespace)
+	kubernetesvapi.UpdateConfigMap(clientSet, dataMap, configMapName, namespace)
 }
