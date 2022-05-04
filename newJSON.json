@@ -3,7 +3,9 @@
         {
             "componentVersion": "5.1.1.4",
             "ocpVersions": [
-                "4.5"
+                "4.5",
+                "4.6",
+                "4.7"
             ]
         },
         {
@@ -25,8 +27,6 @@
         {
             "componentVersion": "10.1.10",
             "ocpVersions": [
-                "4.8",
-                "4.9"
             ]
         }
     ],

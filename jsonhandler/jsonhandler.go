@@ -33,29 +33,42 @@ func GenerateJSONForConfigMap(JSONFile string, ConfigMap string) map[string]stri
 	return mapStr
 }
 func checkFieldValues(oldJSON map[string]interface{}, newJSON map[string]interface{}) {
-	for key, _ := range oldJSON {
-		if fmt.Sprintf("%T", oldJSON[key]) == "map[string]interface {}" {
-			a := oldJSON[key]
-			b := newJSON[key]
-			checkFieldValues(a.(map[string]interface{}), b.(map[string]interface{}))
+	for key, _ := range newJSON {
+		if fmt.Sprintf("%T", newJSON[key]) == "map[string]interface {}" && fmt.Sprintf("%T", oldJSON[key]) == "map[string]interface {}" {
+			checkFieldValues(oldJSON[key].(map[string]interface{}), newJSON[key].(map[string]interface{}))
 		}
-		if fmt.Sprintf("%T", newJSON[key]) == "[]interface {}" {
-			wentDown := false
+		if fmt.Sprintf("%T", newJSON[key]) == "[]interface {}" && fmt.Sprintf("%T", oldJSON[key]) == "[]interface {}" {
+			objectExists := false
 			oldJsonArray := oldJSON[key].([]interface{})
 			newJsonArray := newJSON[key].([]interface{})
-			for i := range oldJsonArray {
-				if fmt.Sprintf("%T", oldJsonArray[i]) == "map[string]interface {}" {
-					wentDown = true
-					a := oldJsonArray[i]
-					b := newJsonArray[i]
-					checkFieldValues(a.(map[string]interface{}), b.(map[string]interface{}))
+			for i := range newJsonArray {
+				if fmt.Sprintf("%T", newJsonArray[i]) == "map[string]interface {}" {
+					if i < len(oldJsonArray) && fmt.Sprintf("%T", oldJsonArray[i]) == "map[string]interface {}" {
+						objectExists = true
+						checkFieldValues(oldJsonArray[i].(map[string]interface{}), newJsonArray[i].(map[string]interface{}))
+					}
 				}
 			}
-			if wentDown == false {
+			if objectExists == false {
 				if len(newJsonArray) != 0 {
 					oldJSON[key] = newJSON[key]
 				}
 			}
 		}
+		if oldJSON[key] == nil {
+			oldJSON[key] = newJSON[key]
+		}
 	}
+	oldJSON = sortByJSONKeys(oldJSON, newJSON)
+}
+
+func sortByJSONKeys(oldJSON map[string]interface{}, newJSON map[string]interface{}) map[string]interface{} {
+	sortedOldJSON := make(map[string]interface{})
+	for key, _ := range newJSON {
+		fmt.Println(key)
+		if oldJSON[key] != nil {
+			sortedOldJSON[key] = oldJSON[key]
+		}
+	}
+	return sortedOldJSON
 }

@@ -40,7 +40,6 @@ func CreateConfigMap(clientSet *kubernetes.Clientset, data map[string]string, na
 	}
 	_, err := clientSet.CoreV1().ConfigMaps(namespace).Get(context.Background(), name, metav1.GetOptions{})
 	if err != nil {
-		fmt.Println(cm.Data)
 		_, err = clientSet.CoreV1().ConfigMaps(namespace).Create(context.Background(), cm, metav1.CreateOptions{})
 		if err != nil {
 			fmt.Println(err.Error())
