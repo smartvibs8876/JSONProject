@@ -10,7 +10,11 @@ import (
 
 func CreateConfigMapFromJSONFile(fileName string) map[string]string {
 	var configMap map[string]string = make(map[string]string)
-	configMap["configuration"] = ReadFromJSONFile(fileName)
+	byteValue := []byte(ReadFromJSONFile(fileName))
+	var JSON map[string]interface{}
+	json.Unmarshal(byteValue, &JSON)
+	JSONStr, _ := json.Marshal(JSON)
+	configMap["configuration"] = string(JSONStr)
 	return configMap
 }
 func ReadFromJSONFile(fileName string) string {
@@ -43,10 +47,31 @@ func checkFieldValues(oldJSON map[string]interface{}, newJSON map[string]interfa
 			newJsonArray := newJSON[key].([]interface{})
 			for i := range newJsonArray {
 				if fmt.Sprintf("%T", newJsonArray[i]) == "map[string]interface {}" {
-					if i < len(oldJsonArray) && fmt.Sprintf("%T", oldJsonArray[i]) == "map[string]interface {}" {
-						objectExists = true
-						checkFieldValues(oldJsonArray[i].(map[string]interface{}), newJsonArray[i].(map[string]interface{}))
+					objectExists = true
+					newObjectFound := true
+					objectFromNewArray := newJsonArray[i].(map[string]interface{})
+					for j := range oldJsonArray {
+						if fmt.Sprintf("%T", oldJsonArray[j]) == "map[string]interface {}" {
+							objectFromOldArray := oldJsonArray[j].(map[string]interface{})
+							//fmt.Println("Old Object", objectFromOldArray)
+							//fmt.Println("New Object", objectFromNewArray)
+							equal := checkSameObjects(objectFromOldArray, objectFromNewArray)
+							//fmt.Println(equal)
+							if equal {
+								newObjectFound = false
+								checkFieldValues(objectFromOldArray, objectFromNewArray)
+								break
+							}
+						}
 					}
+					if newObjectFound == true {
+						// fmt.Println("here", objectFromNewArray)
+						oldJSON[key] = append(oldJSON[key].([]interface{}), objectFromNewArray)
+					}
+					// if i < len(oldJsonArray) && fmt.Sprintf("%T", oldJsonArray[i]) == "map[string]interface {}" {
+					// 	objectExists = true
+					// 	checkFieldValues(oldJsonArray[i].(map[string]interface{}), newJsonArray[i].(map[string]interface{}))
+					// }
 				}
 			}
 			if objectExists == false {
@@ -59,16 +84,26 @@ func checkFieldValues(oldJSON map[string]interface{}, newJSON map[string]interfa
 			oldJSON[key] = newJSON[key]
 		}
 	}
-	oldJSON = sortByJSONKeys(oldJSON, newJSON)
-	fmt.Println(oldJSON)
 }
 
-func sortByJSONKeys(oldJSON map[string]interface{}, newJSON map[string]interface{}) map[string]interface{} {
-	sortedOldJSON := make(map[string]interface{})
-	for key, _ := range newJSON {
-		if oldJSON[key] != nil {
-			sortedOldJSON[key] = oldJSON[key]
+func checkSameObjects(obj1 map[string]interface{}, obj2 map[string]interface{}) bool {
+	if len(obj1) != len(obj2) {
+		return false
+	}
+	for key := range obj1 {
+		if fmt.Sprintf("%T", obj1[key]) == "[]interface {}" && fmt.Sprintf("%T", obj2[key]) == "[]interface {}" {
+			continue
+		} else if fmt.Sprintf("%T", obj1[key]) == "map[string]interface {}" && fmt.Sprintf("%T", obj2[key]) == "map[string]interface {}" {
+			if obj1[key] != obj2[key] {
+				return false
+			}
+		} else if fmt.Sprintf("%T", obj1[key]) == "string" && fmt.Sprintf("%T", obj2[key]) == "string" {
+			if obj1[key] != obj2[key] {
+				return false
+			}
+		} else {
+			return false
 		}
 	}
-	return sortedOldJSON
+	return true
 }
