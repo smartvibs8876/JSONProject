@@ -1,41 +1,44 @@
 {
     "scaleCompatibilityWithOcp": [
         {
+            "componentVersion": "5.1.1.6",
+            "ocpVersions": [
+                "6.8",
+                "6.9"
+            ]
+        },
+        {
             "componentVersion": "5.1.1.5",
             "ocpVersions": [
                 "5.7",
                 "5.8"
             ]
-        },
-        {
-            "componentVersion": "5.1.1.6",
-            "ocpVersions": [
-                "4.7"
-            ]
         }
     ],
     "sppCompatibilityWithOcp": [
         {
-            "componentVersion": "10.1.0",
-            "ocpVersions": [
-                "4.6"
-            ]
-        },
-        {
             "componentVersion": "10.1.1",
             "ocpVersions": [
-                "4.5",
-                "4.6"
             ]
         },
         {
             "componentVersion": "10.1.2",
             "ocpVersions": [
-                "4.9"
+                "4.5"
+            ]
+        },
+        {
+            "componentVersion": "10.1.5",
+            "ocpVersions": [
+                "4.7"
             ]
         }
     ],
     "supportedUpgradeableVersionsOcp": [
+        "4.9.24",
+        "5.0.4"
+    ],
+    "supportedUpgradeableVersionsOcp2": [
         "4.9.24",
         "5.0.4"
     ]
