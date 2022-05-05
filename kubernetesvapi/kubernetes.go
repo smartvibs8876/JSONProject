@@ -1,3 +1,9 @@
+/*
+Kubernetesvapi package to initialise connection to a minikube cluster
+Add a conifg map to the minikube cluster
+Read a config map from minikube cluster
+Update a config map in minikube cluster
+*/
 package kubernetesvapi
 
 import (
@@ -10,6 +16,7 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 )
 
+//Function to initialise a connection to minikube cluster and return an object for further operations like create,read and update
 func InitConnection() *kubernetes.Clientset {
 	rules := clientcmd.NewDefaultClientConfigLoadingRules()
 	kubeconfig := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(rules, &clientcmd.ConfigOverrides{})
@@ -26,6 +33,7 @@ func InitConnection() *kubernetes.Clientset {
 	return clientSet
 }
 
+//Function to update a config map
 func UpdateConfigMap(clientSet *kubernetes.Clientset, data map[string]string, name string, namespace string) {
 	cm := &corev1.ConfigMap{
 		TypeMeta: metav1.TypeMeta{
@@ -44,6 +52,8 @@ func UpdateConfigMap(clientSet *kubernetes.Clientset, data map[string]string, na
 	}
 
 }
+
+//Function to create a config map
 func CreateConfigMap(clientSet *kubernetes.Clientset, data map[string]string, name string, namespace string) {
 	cm := &corev1.ConfigMap{
 		TypeMeta: metav1.TypeMeta{
@@ -62,6 +72,8 @@ func CreateConfigMap(clientSet *kubernetes.Clientset, data map[string]string, na
 	}
 
 }
+
+//Function to read a config map
 func ReadConfigMap(clientSet *kubernetes.Clientset, name string, namespace string) (string, error) {
 	cm, err := clientSet.CoreV1().ConfigMaps(namespace).Get(context.Background(), name, metav1.GetOptions{})
 	if err != nil {

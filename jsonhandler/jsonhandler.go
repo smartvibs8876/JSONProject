@@ -1,3 +1,8 @@
+/*
+	Jsonhandler package to compare json file and a config map
+	Makes necessary changes to the config map after comparison
+	Makes calls to file handler package for reading the json file
+*/
 package jsonhandler
 
 import (
@@ -8,6 +13,7 @@ import (
 	"JSONProject.com/filehandler"
 )
 
+//Function to copy contents of json file and paste in config map. Used for first time initialisation
 func CreateConfigMapFromJSONFile(fileName string) map[string]string {
 	var configMap map[string]string = make(map[string]string)
 	byteValue := []byte(ReadFromJSONFile(fileName))
@@ -17,12 +23,15 @@ func CreateConfigMapFromJSONFile(fileName string) map[string]string {
 	configMap["configuration"] = string(JSONStr)
 	return configMap
 }
+
+//Function to read json file and return in string format
 func ReadFromJSONFile(fileName string) string {
 	JSONFile := filehandler.ReadFromJSONFile(fileName)
 	ByteValue, _ := ioutil.ReadAll(JSONFile)
 	return string(ByteValue)
 }
 
+//Create a map for json and config map and makes a call to checkFieldValues for comparing and updating
 func GenerateJSONForConfigMap(JSONFile string, ConfigMap string) map[string]string {
 	ConfigMapByteValue := []byte(ConfigMap)
 	JSONFileByteValue := []byte(JSONFile)
@@ -36,6 +45,8 @@ func GenerateJSONForConfigMap(JSONFile string, ConfigMap string) map[string]stri
 	mapStr["configuration"] = string(oldJSONStr)
 	return mapStr
 }
+
+//Recursive function for comparing and updating field values of config map
 func checkFieldValues(oldJSON map[string]interface{}, newJSON map[string]interface{}) {
 	for key, _ := range newJSON {
 		if fmt.Sprintf("%T", newJSON[key]) == "map[string]interface {}" && fmt.Sprintf("%T", oldJSON[key]) == "map[string]interface {}" {
@@ -53,10 +64,7 @@ func checkFieldValues(oldJSON map[string]interface{}, newJSON map[string]interfa
 					for j := range oldJsonArray {
 						if fmt.Sprintf("%T", oldJsonArray[j]) == "map[string]interface {}" {
 							objectFromOldArray := oldJsonArray[j].(map[string]interface{})
-							//fmt.Println("Old Object", objectFromOldArray)
-							//fmt.Println("New Object", objectFromNewArray)
 							equal := checkSameObjects(objectFromOldArray, objectFromNewArray)
-							//fmt.Println(equal)
 							if equal {
 								newObjectFound = false
 								checkFieldValues(objectFromOldArray, objectFromNewArray)
@@ -65,13 +73,8 @@ func checkFieldValues(oldJSON map[string]interface{}, newJSON map[string]interfa
 						}
 					}
 					if newObjectFound == true {
-						// fmt.Println("here", objectFromNewArray)
 						oldJSON[key] = append(oldJSON[key].([]interface{}), objectFromNewArray)
 					}
-					// if i < len(oldJsonArray) && fmt.Sprintf("%T", oldJsonArray[i]) == "map[string]interface {}" {
-					// 	objectExists = true
-					// 	checkFieldValues(oldJsonArray[i].(map[string]interface{}), newJsonArray[i].(map[string]interface{}))
-					// }
 				}
 			}
 			if objectExists == false {
@@ -86,6 +89,7 @@ func checkFieldValues(oldJSON map[string]interface{}, newJSON map[string]interfa
 	}
 }
 
+//Function to check if 2 objects are same in an array
 func checkSameObjects(obj1 map[string]interface{}, obj2 map[string]interface{}) bool {
 	if len(obj1) != len(obj2) {
 		return false
